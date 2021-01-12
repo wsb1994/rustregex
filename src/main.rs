@@ -118,12 +118,7 @@ fn generate_list(
     }
     results
 }
-/*
-fn generate_report(
-    filename: Vec<String>,
-    sanitized_files: Vec<Vec<String>>,
-) -> (String, Vec<Vec<(String, u32)>>) {
-}*/
+
 fn clean_filelist(files: Vec<String>) -> Vec<String> {
     let mut files = files;
     files.retain(|x| Path::new(&x).exists());
@@ -168,13 +163,15 @@ fn main() {
     println!("results in : {} \n", now.elapsed().as_secs_f32());
 }
 
+// these tests expect errors, rest easy, they do in fact test for correctness underneath by unwrapping() or matching
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
     fn test_native_inline() {
         let now = Instant::now();
-        let native = native_filelist("filenames.txt").unwrap();
+        let mut native = native_filelist("filenames.txt").unwrap();
+        native = clean_filelist(native);
         let _ = inline_regex(native);
         println!("test_native_par took {} \n", now.elapsed().as_secs_f32());
     }
@@ -182,7 +179,8 @@ mod tests {
     #[test]
     fn test_native_crossbeam() {
         let now = Instant::now();
-        let native = native_filelist("filenames.txt").unwrap();
+        let mut native = native_filelist("filenames.txt").unwrap();
+        native = clean_filelist(native);
         let _ = crossbeam_regex(native);
         println!(
             "test_native_crossbeam took {} \n",
@@ -193,7 +191,8 @@ mod tests {
     #[test]
     fn test_native_pool() {
         let now = Instant::now();
-        let native = native_filelist("filenames.txt").unwrap();
+        let mut native = native_filelist("filenames.txt").unwrap();
+        native = clean_filelist(native);
         let _ = par_regex(native);
         println!("test_native_pool took {} \n", now.elapsed().as_secs_f32());
     }
@@ -201,15 +200,18 @@ mod tests {
     #[test]
     fn test_slurp_inline() {
         let now = Instant::now();
-        let native = slurp_filelist("filenames.txt");
+        let mut native = slurp_filelist("filenames.txt");
+        native = clean_filelist(native);
         let _ = inline_regex(native);
+        
         println!("test_slurp_par took {} \n", now.elapsed().as_secs_f32());
     }
 
     #[test]
     fn test_slurp_crossbeam() {
         let now = Instant::now();
-        let native = slurp_filelist("filenames.txt");
+        let mut native = slurp_filelist("filenames.txt");
+        native = clean_filelist(native);
         let _ = crossbeam_regex(native);
         println!(
             "test_slurp_crossbeam took {} \n",
@@ -220,7 +222,8 @@ mod tests {
     #[test]
     fn test_slurp_pool() {
         let now = Instant::now();
-        let native = slurp_filelist("filenames.txt");
+        let mut native = slurp_filelist("filenames.txt");
+        native = clean_filelist(native);
         let _ = par_regex(native);
         println!("test_slurp_pool took {} \n", now.elapsed().as_secs_f32());
     }
